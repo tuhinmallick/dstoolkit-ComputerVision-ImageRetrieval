@@ -26,8 +26,8 @@ class AzureImageRetrieval():
         ## Configuaration in Azure
         self.CV_ENDPOINT = self.config['Azure']['ENDPOINT']
         self.CV_KEY = self.config['Azure']['KEY']
-        self.vectorizeImageEndpoint = self.CV_ENDPOINT + '/computervision/retrieval:vectorizeImage?api-version=2023-02-01-preview&modelVersion=latest'
-        self.vectorizeTextEndpoint = self.CV_ENDPOINT + '/computervision/retrieval:vectorizeText?api-version=2023-02-01-preview&modelVersion=latest'
+        self.vectorizeImageEndpoint = f'{self.CV_ENDPOINT}/computervision/retrieval:vectorizeImage?api-version=2023-02-01-preview&modelVersion=latest'
+        self.vectorizeTextEndpoint = f'{self.CV_ENDPOINT}/computervision/retrieval:vectorizeText?api-version=2023-02-01-preview&modelVersion=latest'
         self.headers = {
             "Content-Type": "application/octet-stream",  # binary data in sending API
             "Ocp-Apim-Subscription-Key": self.CV_KEY
@@ -193,10 +193,11 @@ class AzureImageRetrieval():
                     caption_content = None
 
                 ## Store the results
-                self.vectors[image] = {}
-                self.vectors[image]['index'] = i
-                self.vectors[image]['vector'] = vector
-                self.vectors[image]['caption'] = caption_content
+                self.vectors[image] = {
+                    'index': i,
+                    'vector': vector,
+                    'caption': caption_content,
+                }
                 time.sleep(3)
                 ## Store vector in search index
                 self.index_flat_l2.add(vector)
@@ -274,7 +275,7 @@ class AzureImageRetrieval():
             fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 6))
 
             for i, ax in enumerate(axes.flat):
-                if i < num_images:
+                if i < num_rows:
                     ## Show image
                     image_path = os.path.join(image_directory, self.images[i])
                     image = plt.imread(image_path)
